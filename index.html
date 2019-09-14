@@ -48,22 +48,20 @@
             rating.onDraw = function () {
                 calledDraw++;
                 time += ((new Date()).getTime() * 1) - startTime;
+                if (T < 100) {
+                    rating.update({
+                        "width": 400 + ((T * 100) % 400),
+                        "height": 400 + ((T * 100) % 400),
+                        "rating": (((4.5 + T) % 10) + 1) % (((5 + T) % 10) + 1),
+                        "stars": ((5 + T) % 10) + 1,
+                        "ratedFill": colors[T % 4]
+                    });
+                    T++;
+                } else {
+                    console.log(T + ' tests. Draw done ' + calledDraw + 'time(s) in ' + time + 'ms')
+                }
             }
 
-            n = setInterval(function () {
-                if (T >= 100) {
-                    console.log(T + ' tests. Draw called ' + calledDraw + 'time(s) in ' + time + 'ms');
-                    n = clearInterval(n)
-                }
-                rating.update({
-                    "width": 400 + ((T * 100) % 400),
-                    "height": 400 + ((T * 100) % 400),
-                    "rating": (((4.5 + T) % 10) + 1) % (((5 + T) % 10) + 1),
-                    "stars": ((5 + T) % 10) + 1,
-                    "ratedFill": colors[T % 4]
-                });
-                T++;
-            }, 100);
         }
     </script>
 </body>
