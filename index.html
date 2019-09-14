@@ -41,24 +41,23 @@
                 "rating": 4.5,
                 "stars": 5
             }),
-                T = 1, startTime, time = 0, colors = ['#ff0', '#f00', '#0f0', '#000'], calledDraw = 0, n;
+                startTime, time = 0, colors = ['#ff0', '#f00', '#0f0', '#000'], calledDraw = 0;
             rating.onPreDraw = function () {
                 startTime = ((new Date()).getTime() * 1);
             }
             rating.onDraw = function () {
                 calledDraw++;
                 time += ((new Date()).getTime() * 1) - startTime;
-                if (T < 100) {
+                if (calledDraw < 100) {
                     rating.update({
-                        "width": 400 + ((T * 100) % 400),
-                        "height": 400 + ((T * 100) % 400),
-                        "rating": (((4.5 + T) % 10) + 1) % (((5 + T) % 10) + 1),
-                        "stars": ((5 + T) % 10) + 1,
-                        "ratedFill": colors[T % 4]
+                        "width": 400 + ((calledDraw * 100) % 400),
+                        "height": 400 + ((calledDraw * 100) % 400),
+                        "rating": (((4.5 + calledDraw) % 10) + 1) % (((5 + calledDraw) % 10) + 1),
+                        "stars": ((5 + calledDraw) % 10) + 1,
+                        "ratedFill": colors[calledDraw % 4]
                     });
-                    T++;
                 } else {
-                    console.log(T + ' tests. Draw done ' + calledDraw + 'time(s) in ' + time + 'ms')
+                    console.log('Draw done ' + calledDraw + 'time(s) in ' + time + 'ms')
                 }
             }
 
