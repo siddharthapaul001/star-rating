@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="scripts/rating.min.js"></script>
+    <!-- <script src="scripts/rating.js"></script> -->
+</head>
+
+<body>
+    <div id="container">
+
+    </div>
+    <button onclick="updateStressTest()">Update</button>
+    <button onclick="drawStressTest()">Draw</button>
+    <script>
+        var elem = document.getElementById('container');
+        function updateStressTest() {
+            elem.innerHTML = '';
+            let rating = new StarRating(elem, {
+                "rating": 4.5,
+                "stars": 5
+            }),
+                T = 1, startTime = ((new Date()).getTime() * 1), time = 0, colors = ['#ff0', '#f00', '#0f0', '#000'];
+            while (time < 100) {
+                rating.update({
+                    "width": 400 + ((T * 100) % 400),
+                    "height": 400 + ((T * 100) % 400),
+                    "rating": (((4.5 + T) % 10) + 1) % (((5 + T) % 10) + 1),
+                    "stars": ((5 + T) % 10) + 1,
+                    "ratedFill": colors[T % 4]
+                });
+                time = ((new Date()).getTime() * 1) - startTime;
+                T++;
+            }
+            console.log(T + ' tests in ' + time + 'ms');
+        }
+
+        function drawStressTest() {
+            elem.innerHTML = '';
+            let rating = new StarRating(elem, {
+                "rating": 4.5,
+                "stars": 5
+            }),
+                T = 1, startTime, time = 0, colors = ['#ff0', '#f00', '#0f0', '#000'], calledDraw = 0, n;
+            rating.onPreDraw = function () {
+                startTime = ((new Date()).getTime() * 1);
+            }
+            rating.onDraw = function () {
+                calledDraw++;
+                time += ((new Date()).getTime() * 1) - startTime;
+            }
+
+            n = setInterval(function () {
+                if (T >= 100) {
+                    console.log(T + ' tests. Draw called ' + calledDraw + 'time(s) in ' + time + 'ms');
+                    n = clearInterval(n)
+                }
+                rating.update({
+                    "width": 400 + ((T * 100) % 400),
+                    "height": 400 + ((T * 100) % 400),
+                    "rating": (((4.5 + T) % 10) + 1) % (((5 + T) % 10) + 1),
+                    "stars": ((5 + T) % 10) + 1,
+                    "ratedFill": colors[T % 4]
+                });
+                T++;
+            }, 100);
+        }
+    </script>
+</body>
+
+</html>
