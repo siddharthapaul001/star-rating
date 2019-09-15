@@ -82,7 +82,7 @@ function _validateColorCode(color) {
   *          returns true if input num is in fraction otherwise false
 */
 function _isFraction(num) {
-    return !(Math.abs(num - Math.floor(num)) < Number.EPSILON);
+    return (num - (num >> 0));
 }
 
 
@@ -362,6 +362,17 @@ class StarRating {
             }
         }
 
+        if(this._config.strokeWidth > 0){
+            if(this._config.ratedStroke === 'none'){
+                console.warn('no color selected for rated stroke setting to black');
+                this._config.ratedStroke = '#000';
+            }
+            if(this._config.nonratedStroke === 'none'){
+                console.warn('no color selected for nonrated stroke setting to black');
+                this._config.nonratedStroke = '#000';
+            }
+        }
+
         side = sideOut - (this._config.padding * 2) - (this._config.strokeWidth * 2);
 
         if (side < 10) {
@@ -549,11 +560,13 @@ class StarRating {
                     this._config.rating = cVal;
                 }
             } else {
-                if (cVal > this._config.TotalStars) {
-                    this._config.rating = undefined;
-                }
                 console.error('Incorrect rating: ' + attribs.rating);
             }
+        }
+
+        if(this._config.rating > this._config.TotalStars){
+            this._config.rating = undefined;
+            console.warn('rating > no of stars');
         }
 
         if (attribs.justifyContent !== undefined) {
@@ -662,7 +675,9 @@ class StarRating {
         }
         let i, j,
             rating = !this._config.rating && this._config.rating != 0 ? this._config.TotalStars : this._config.rating,
-            currentStars = this._elem.stars.length;
+            currentStars = this._elem.stars.length, 
+            lim = currentStars < this._config.TotalStars ? this._config.TotalStars : currentStars,
+            fill, stroke;
 
         if (this._internalConfig.firstDraw || this._todo.calcRelativePath) {
             this._internalConfig.relativePath = _getPathString(this._internalConfig.side);
@@ -684,7 +699,7 @@ class StarRating {
             this._calculateBaseShift();
         }
 
-        for (i = 0; i < Math.max(currentStars, this._config.TotalStars); i++) {
+        for (i = 0; i < lim; i++) {
             j = this._internalConfig.flow == 'reverse' ? this._config.TotalStars - i - 1 : i;
             if (i >= currentStars) {
                 let star = new SVGElement("path");
@@ -694,21 +709,19 @@ class StarRating {
                 this._elem.stars.pop().removeNode();
             }
             if (i < this._config.TotalStars) {
-                if (_isFraction(rating) && Math.ceil(rating) == j + 1) {
-                    this._elem.stars[i].setAttributes({
-                        "fill": "url(#partial-fill-u" + defs.unique + ")",
-                        "stroke": "url(#partial-stroke-u" + defs.unique + ")",
-                        "stroke-width": this._config.strokeWidth + "px",
-                        "d": 'M' + (this._internalConfig.baseX + (this._internalConfig.xShift * i)) + ',' + (this._internalConfig.baseY + (this._internalConfig.yShift * i)) + ' ' + this._internalConfig.relativePath
-                    });
+                if (_isFraction(rating) && ((rating >> 0) + 1) == j + 1) {
+                    fill = "url(#partial-fill-u" + defs.unique + ")",
+                    stroke = "url(#partial-stroke-u" + defs.unique + ")"
                 } else {
-                    this._elem.stars[i].setAttributes({
-                        "fill": j < Math.ceil(rating) ? this._config.ratedFill : this._config.nonratedFill,
-                        "stroke": j < Math.ceil(rating) ? this._config.ratedStroke : this._config.nonratedStroke,
-                        "stroke-width": this._config.strokeWidth + "px",
-                        "d": 'M' + (this._internalConfig.baseX + (this._internalConfig.xShift * i)) + ',' + (this._internalConfig.baseY + (this._internalConfig.yShift * i)) + ' ' + this._internalConfig.relativePath
-                    });
+                    fill = j < (rating >> 0) + 1 ? this._config.ratedFill : this._config.nonratedFill;
+                    stroke = j < (rating >> 0) + 1 ? this._config.ratedStroke : this._config.nonratedStroke;
                 }
+                this._elem.stars[i].setAttributes({
+                    fill,
+                    stroke,
+                    "stroke-width": this._config.strokeWidth + "px",
+                    "d": 'M' + (this._internalConfig.baseX + (this._internalConfig.xShift * i)) + ',' + (this._internalConfig.baseY + (this._internalConfig.yShift * i)) + ' ' + this._internalConfig.relativePath
+                });
             }
         }
         this._internalConfig.firstDraw = false;
