@@ -15,10 +15,12 @@ function _pluckSize(size, str) {
         console.error("Error in size value " + str + ": " + size);
         return null;
     }
+    if(!isNaN(+size)){
+        return +size;
+    }
     size += '';
-    str = str ? 'of ' + str : '';
     //regex match reduces tests upto 80k
-    let l = (size + '').length, unit = size.slice(-2);
+    let l = size.length, unit = size.slice(-2);
     // let num = (size + '').match(/\d+/g),
     //     unit = (size + '').match(/px|%|vh|vw/g) || [''];
 
@@ -33,8 +35,6 @@ function _pluckSize(size, str) {
     // }
     if (unit === 'px') {
         return +size.slice(0, -2);
-    } else if (+unit !== NaN) {
-        return +size;
     }
     return null;
 }
